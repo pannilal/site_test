@@ -1,4 +1,4 @@
-name: Download Website and Build Next.js
+name: Download Website, Build Next.js, and Create convert.js
 
 on:
   push:
@@ -17,35 +17,57 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js (for Next.js)
+      # Step 2: Navigate to the directory containing package.json (if inside a subfolder like 'site_test')
+      - name: Navigate to the app directory
+        run: cd site_test  # Change this if your package.json is in another folder
+
+      # Step 3: Set up Node.js for Next.js
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '16'
 
-      # Step 3: Install dependencies (Next.js)
+      # Step 4: Install dependencies for Next.js
       - name: Install dependencies
         run: npm install
+        working-directory: ./site_test  # Use this line to set the correct working directory
 
-      # Step 4: Download website using wget
+      # Step 5: Create the convert.js file
+      - name: Create convert.js file
+        run: |
+          echo "const fs = require('fs');" > ./site_test/convert.js
+          echo "console.log('Starting the conversion...');" >> ./site_test/convert.js
+          echo "fs.writeFileSync('./site_test/output.txt', 'Website assets converted successfully!');" >> ./site_test/convert.js
+        working-directory: ./site_test
+
+      # Step 6: Run the convert.js script (your custom logic to convert website assets)
+      - name: Run convert.js
+        run: |
+          node ./site_test/convert.js
+        working-directory: ./site_test
+
+      # Step 7: Download website assets using wget
       - name: Download website assets
         run: |
-          wget -r -l1 -H -nd -A html,css,js,jpg,png,gif,jpeg,woff,woff2,tff,eot,svg https://baysystech.com
-          
-      # Step 5: Build Next.js app
+          wget -r -l1 -H -nd -A html,css,js,jpg,png,gif,jpeg,woff,woff2,tff,eot,svg https://your-website-url.com
+        working-directory: ./site_test
+
+      # Step 8: Build Next.js app
       - name: Build Next.js app
         run: npm run build
+        working-directory: ./site_test
 
-      # Step 6: Export static files (optional if using static export)
+      # Step 9: Export static files (optional if using static export)
       - name: Export static files
         run: npm run export
+        working-directory: ./site_test
 
-      # Step 7: Upload build and exported files as artifacts
+      # Step 10: Upload build and exported files as artifacts
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: nextjs-build-artifacts
           path: |
-            .next
-            out  # Only if you are using static export
-            public  # If you're using static assets
+            ./site_test/.next
+            ./site_test/out  # Only if you are using static export
+            ./site_test/public  # If you're using static assets
