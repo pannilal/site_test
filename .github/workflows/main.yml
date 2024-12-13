@@ -30,8 +30,8 @@ jobs:
       # Step 4: Download website using wget
       - name: Download website assets
         run: |
-          wget -r -l1 -H -nd -A html,css,js,jpg,png,gif,jpeg,woff,woff2,tff,eot,svg https://your-website-url.com
-
+          wget -r -l1 -H -nd -A html,css,js,jpg,png,gif,jpeg,woff,woff2,tff,eot,svg https://baysystech.com
+          
       # Step 5: Build Next.js app
       - name: Build Next.js app
         run: npm run build
